@@ -1,7 +1,9 @@
+import json
 import pdfplumber
 import re
 import sys
 import unicodedata
+import os
 
 def log_debug(mensaje):
     """Enviar logs a stderr para no contaminar stdout"""
@@ -243,10 +245,8 @@ def generar_resumen(competencias):
         }
     return resumen
 
-
 # === PRUEBA DEL MÓDULO ===
 if __name__ == "__main__":
-    import json
     
     if len(sys.argv) < 2:
         print("Uso: python raps_extractor.py <ruta_pdf>", file=sys.stderr)
@@ -267,7 +267,6 @@ if __name__ == "__main__":
     log_debug("\nResumen por competencia:")
     for cod in sorted(resumen.keys()):
         info = resumen[cod]
-        log_debug(f"\n {cod}: {info['num_raps']} RAPs ({info['duracion']}h)")
         log_debug(f"{info['nombre'][:60]}...")
     
     # Crear resultado en formato JSON
@@ -281,6 +280,5 @@ if __name__ == "__main__":
             }
         }
     }
-    
-    # Imprimir JSON a stdout
+    # --- SALIDA A STDOUT (PARA SERVER.JS) ---
     print(json.dumps(resultado, ensure_ascii=False, indent=2), flush=True)

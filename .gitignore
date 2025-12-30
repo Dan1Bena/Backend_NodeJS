@@ -49,5 +49,6 @@ __pycache__/
 *.pid.lock
 t-forward
 tash
+*.json
 
 
