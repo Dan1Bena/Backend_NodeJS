@@ -57,46 +57,15 @@ class InstructoresController {
     //Agregar Un Usuario Nuevo
     async agregarInstructor(req, res) {
         const { id_rol, nombre, email, contrasena, cedula, estado } = req.body;
-        
-        // Validar cédula duplicada
-        const [cedulaExiste] = await db.query(
-            "SELECT id_instructor FROM instructores WHERE cedula = ?",
-            [cedula]
-        );
-
-        if (cedulaExiste.length > 0) {
-            return res.status(400).json({ error: "La cédula ya está registrada" });
-        }
-
-        // Validar formato de email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: "El correo no tiene un formato válido" });
-        }
-
         try {
+            // Cifrar contrasena
             const hash = await bcrypt.hash(contrasena, 10);
 
-            // Guardar usuario en BD
-            const [result] = await db.query(
+            await db.query(
                 'INSERT INTO instructores (id_rol, nombre, email, contrasena, cedula, estado) VALUES (?, ?, ?, ?, ?, ?)',
                 [id_rol, nombre, email, hash, cedula, estado]
             );
-
-            // 🔹 Enviar correo con credenciales (contraseña en texto plano)
-            enviarCredenciales(email, nombre, contrasena);
-
-            res.json({
-                mensaje: "Instructor creado y correo enviado correctamente",
-                id_instructor: result.insertId,
-                nombre,
-                email,
-                cedula,
-                id_rol,
-                estado
-            });
-
+            res.json({ mensaje: 'Instructor agregado exitosamente' });
         } catch (error) {
             console.error("❌ Error en agregarInstructor:", error);
             res.status(500).json({ mensaje: 'Error al agregar instructor' });
